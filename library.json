@@ -1,0 +1,28 @@
+{
+  "name": "conduit",
+  "keywords": "cloud, restful, esp8266",
+  "description": "Use magical RESTful APIs from a central server to communicate to/from the ESP8266 chip",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/suyashkumar/conduit-firmware-library.git"
+  },
+  "authors":
+  [
+    {
+      "name": "Suyash Kumar",
+      "email": "suyashkumar2003@gmail.com",
+      "url": "http://suyashkumar.com",
+      "maintainer": true
+    } 
+  ],
+  "dependencies":
+  {
+    "name": "PubSubClient",
+    "authors": "Nick O'Leary",
+    "frameworks": "arduino"
+  },
+  "version": "1.0.0",
+  "frameworks": "arduino",
+  "platforms": "espressif"
+}
