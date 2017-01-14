@@ -13,4 +13,5 @@ platformio lib install "conduit"
 
 ## License
 Copyright (c) 2017 Suyash Kumar
+
 (CC Attribution-NonCommercial 3.0)
