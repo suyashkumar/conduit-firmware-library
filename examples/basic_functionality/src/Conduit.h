@@ -11,11 +11,11 @@ device and decide what funciton to all is abstracted away entirely by this libra
 */
 
 #include <Arduino.h>
-#include <PubSubClient.h>
 #include <WiFiClient.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266WiFiMulti.h>
 #include <SocketIoClient.h>
+#include <Hash.h>
 
 typedef std::function<int ()> handler;
 void removeSpace(char* s);

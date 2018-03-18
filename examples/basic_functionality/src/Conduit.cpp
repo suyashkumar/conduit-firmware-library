@@ -48,27 +48,15 @@ void Conduit::callHandler(const char* name){
 
 Conduit& Conduit::init(){
     this->_client = &webSocket;
-    Serial.println("1");
-    std::function<void (const char*, size_t)> setSID = [this](const char * payload, size_t length) -> void {
-        this->_sid = sid;
-        strcpy(sid, payload);
-    };
+
     std::function<void (const char*, size_t)> onCall = [this](const char * payload, size_t length) -> void {
         this->callHandler(payload);
     };
-    this->_client->on("id_message", setSID);
+
     this->_client->on("server_directives", onCall);
     this->_client->begin(this->_conduit_server, 8000, "/socket.io/?transport=websocket");
 
-    while (this->_sid == nullptr) {
-        webSocket.loop();
-        delay(200);
-    }
-
-    strcpy(api_key_topic, this->_sid);
-    strcat(api_key_topic, "_api_key");
-
-    this->_client->emit(api_key_topic, this->_prefixed_name);
+    this->_client->emit("api_key", this->_prefixed_name);
     webSocket.loop();
     return *this;
 }
@@ -79,7 +67,7 @@ void Conduit::handle() {
 
 void Conduit::startWIFI(const char* ssid, const char* password){
     WiFiMulti.addAP(ssid, password);
-  Serial.println("");
+  Serial.println("Starting");
 
   // Wait for connection
   while (WiFiMulti.run() != WL_CONNECTED) {
