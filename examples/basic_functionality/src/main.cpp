@@ -19,7 +19,7 @@ device and decide what funciton to all is abstracted away entirely by this libra
 //const char* ssid = "MOTOE0E4";
 //const char* password = "";
 
-Conduit conduit("suyash", "192.168.1.217", "a"); // or "suyash", "home.suyash.io"
+Conduit conduit("suyash", "192.168.0.10", "jkqRN6kBMh"); // or "suyash", "conduit.suyash.io"
 int ledStatus = 0;
 
 int ledToggle(){

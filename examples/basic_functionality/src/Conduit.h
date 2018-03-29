@@ -33,6 +33,7 @@ private:
 public:
 	Conduit(const char* name, const char* server, const char* firmware_key);
 	Conduit& init();
+    void initConnection();
 	void addHandler(const char* name, handler f);
     void callHandler(const char* name);
     void handle();

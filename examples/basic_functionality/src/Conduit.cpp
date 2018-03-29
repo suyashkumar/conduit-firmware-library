@@ -53,12 +53,22 @@ Conduit& Conduit::init(){
         this->callHandler(payload);
     };
 
+    std::function<void (const char*, size_t)> onConnect = [this](const char * payload, size_t length) -> void {
+            this->initConnection();
+    };
+
     this->_client->on("server_directives", onCall);
+    this->_client->on("connect", onConnect);
     this->_client->begin(this->_conduit_server, 8000, "/socket.io/?transport=websocket");
 
-    this->_client->emit("api_key", this->_prefixed_name);
-    webSocket.loop();
+    for (int i=0; i < 5; i++) {
+        webSocket.loop();
+    }
     return *this;
+}
+
+void Conduit::initConnection() {
+    this->_client->emit("api_key", this->_prefixed_name);
 }
 
 void Conduit::handle() {
