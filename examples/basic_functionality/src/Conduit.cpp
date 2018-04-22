@@ -15,6 +15,7 @@ device and decide what funciton to all is abstracted away entirely by this libra
 char prefixed_name[45];
 char api_key_topic[100];
 char sid[30];
+char response_with_quotes[30];
 WiFiClient client;
 SocketIoClient webSocket;
 ESP8266WiFiMulti WiFiMulti;
@@ -42,15 +43,28 @@ void Conduit::addHandler(const char* name, handler f){
     this->_f_map[name] = f;
 }
 
-void Conduit::callHandler(const char* name){
-    this->_f_map[name]();
+void Conduit::callHandler(RequestParams* rp){
+    this->_f_map[rp->function_name](rp);
 }
 
 Conduit& Conduit::init(){
     this->_client = &webSocket;
 
     std::function<void (const char*, size_t)> onCall = [this](const char * payload, size_t length) -> void {
-        this->callHandler(payload);
+        char *pch;
+        char* elements[20];
+        pch = strtok((char*)payload, ",");
+        int i = 0;
+        while (pch != NULL) {
+            elements[i] = pch;
+            pch = strtok(NULL, ",");
+            i++;
+        }
+
+        RequestParams *rq = new RequestParams;
+        rq->function_name = elements[0];
+        rq->request_uuid = elements[1];
+        this->callHandler(rq);
     };
 
     std::function<void (const char*, size_t)> onConnect = [this](const char * payload, size_t length) -> void {
@@ -69,6 +83,14 @@ Conduit& Conduit::init(){
 
 void Conduit::initConnection() {
     this->_client->emit("api_key", this->_prefixed_name);
+}
+
+void Conduit::sendResponse(RequestParams *rp, const char* response) {
+    // Response message must be send with escaped quotes
+    strcpy(response_with_quotes, "\"");
+    strcat(response_with_quotes, response);
+    strcat(response_with_quotes, "\"");
+    this->_client->emit(rp->request_uuid, response_with_quotes);
 }
 
 void Conduit::handle() {

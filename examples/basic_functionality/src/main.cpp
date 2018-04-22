@@ -22,10 +22,12 @@ device and decide what funciton to all is abstracted away entirely by this libra
 Conduit conduit("suyash", "192.168.0.10", "jkqRN6kBMh"); // or "suyash", "conduit.suyash.io"
 int ledStatus = 0;
 
-int ledToggle(){
-  digitalWrite(LED, (ledStatus) ? LOW : HIGH);
+int ledToggle(RequestParams *rq){
+  digitalWrite(LED, (ledStatus) ? HIGH : LOW); // LED is on when LOW
   ledStatus = (ledStatus) ? 0 : 1;
   Serial.println("Toggled");
+    Serial.println(rq->request_uuid);
+  conduit.sendResponse(rq, (ledStatus) ? "ON":"OFF");
 }
 
 
