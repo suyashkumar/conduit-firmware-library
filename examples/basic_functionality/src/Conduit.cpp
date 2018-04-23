@@ -11,6 +11,7 @@ device and decide what funciton to all is abstracted away entirely by this libra
 */
 
 #include "Conduit.h"
+#define PORT 443
 
 char prefixed_name[45];
 char api_key_topic[100];
@@ -19,6 +20,7 @@ char response_with_quotes[30];
 WiFiClient client;
 SocketIoClient webSocket;
 ESP8266WiFiMulti WiFiMulti;
+const char* fingerprint = "BC:E5:91:A5:68:B6:EF:93:A6:82:5A:23:85:45:F8:70:3C:21:F3:AE";
 
 Conduit::Conduit(const char* name, const char* server, const char* firmware_key){
     // Set name and server
@@ -73,8 +75,8 @@ Conduit& Conduit::init(){
 
     this->_client->on("server_directives", onCall);
     this->_client->on("connect", onConnect);
-    this->_client->begin(this->_conduit_server, 8000, "/socket.io/?transport=websocket");
-
+    //this->_client->begin(this->_conduit_server, 8000, "/socket.io/?transport=websocket");
+    this->_client->beginSSL(this->_conduit_server, PORT, "/socket.io/?transport=websocket", fingerprint);
     for (int i=0; i < 5; i++) {
         webSocket.loop();
     }
