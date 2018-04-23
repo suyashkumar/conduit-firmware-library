@@ -11,13 +11,14 @@ device and decide what funciton to all is abstracted away entirely by this libra
 */
 
 #include <Arduino.h>
-#include <PubSubClient.h>
 #include <WiFiClient.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266WiFiMulti.h>
 #include <SocketIoClient.h>
+#include <Hash.h>
+#include <RequestParams.h>
 
-typedef std::function<int ()> handler;
+typedef std::function<int (RequestParams* rp)> handler;
 void removeSpace(char* s);
 
 
@@ -33,12 +34,14 @@ private:
 public:
 	Conduit(const char* name, const char* server, const char* firmware_key);
 	Conduit& init();
+    void initConnection();
 	void addHandler(const char* name, handler f);
-    void callHandler(const char* name);
+    void callHandler(RequestParams *rp);
     void handle();
     void reconnect();
     void msgCallback(char* topic, byte* payload, unsigned int length);
     void publishMessage(const char* message);
     void publishData(const char* message, const char* dataStream);
     void startWIFI(const char* ssid, const char* password);
+	void sendResponse(RequestParams *rp, const char* response);
 };

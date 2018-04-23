@@ -11,13 +11,16 @@ device and decide what funciton to all is abstracted away entirely by this libra
 */
 
 #include "Conduit.h"
+#define PORT 443
 
 char prefixed_name[45];
 char api_key_topic[100];
 char sid[30];
+char response_with_quotes[30];
 WiFiClient client;
 SocketIoClient webSocket;
 ESP8266WiFiMulti WiFiMulti;
+const char* fingerprint = "BC:E5:91:A5:68:B6:EF:93:A6:82:5A:23:85:45:F8:70:3C:21:F3:AE";
 
 Conduit::Conduit(const char* name, const char* server, const char* firmware_key){
     // Set name and server
@@ -42,35 +45,54 @@ void Conduit::addHandler(const char* name, handler f){
     this->_f_map[name] = f;
 }
 
-void Conduit::callHandler(const char* name){
-    this->_f_map[name]();
+void Conduit::callHandler(RequestParams* rp){
+    this->_f_map[rp->function_name](rp);
 }
 
 Conduit& Conduit::init(){
     this->_client = &webSocket;
-    Serial.println("1");
-    std::function<void (const char*, size_t)> setSID = [this](const char * payload, size_t length) -> void {
-        this->_sid = sid;
-        strcpy(sid, payload);
-    };
+
     std::function<void (const char*, size_t)> onCall = [this](const char * payload, size_t length) -> void {
-        this->callHandler(payload);
+        char *pch;
+        char* elements[20];
+        pch = strtok((char*)payload, ",");
+        int i = 0;
+        while (pch != NULL) {
+            elements[i] = pch;
+            pch = strtok(NULL, ",");
+            i++;
+        }
+
+        RequestParams *rq = new RequestParams;
+        rq->function_name = elements[0];
+        rq->request_uuid = elements[1];
+        this->callHandler(rq);
     };
-    this->_client->on("id_message", setSID);
+
+    std::function<void (const char*, size_t)> onConnect = [this](const char * payload, size_t length) -> void {
+            this->initConnection();
+    };
+
     this->_client->on("server_directives", onCall);
-    this->_client->begin(this->_conduit_server, 8000, "/socket.io/?transport=websocket");
-
-    while (this->_sid == nullptr) {
+    this->_client->on("connect", onConnect);
+    //this->_client->begin(this->_conduit_server, 8000, "/socket.io/?transport=websocket");
+    this->_client->beginSSL(this->_conduit_server, PORT, "/socket.io/?transport=websocket", fingerprint);
+    for (int i=0; i < 5; i++) {
         webSocket.loop();
-        delay(200);
     }
-
-    strcpy(api_key_topic, this->_sid);
-    strcat(api_key_topic, "_api_key");
-
-    this->_client->emit(api_key_topic, this->_prefixed_name);
-    webSocket.loop();
     return *this;
+}
+
+void Conduit::initConnection() {
+    this->_client->emit("api_key", this->_prefixed_name);
+}
+
+void Conduit::sendResponse(RequestParams *rp, const char* response) {
+    // Response message must be send with escaped quotes
+    strcpy(response_with_quotes, "\"");
+    strcat(response_with_quotes, response);
+    strcat(response_with_quotes, "\"");
+    this->_client->emit(rp->request_uuid, response_with_quotes);
 }
 
 void Conduit::handle() {
@@ -79,7 +101,7 @@ void Conduit::handle() {
 
 void Conduit::startWIFI(const char* ssid, const char* password){
     WiFiMulti.addAP(ssid, password);
-  Serial.println("");
+  Serial.println("Starting");
 
   // Wait for connection
   while (WiFiMulti.run() != WL_CONNECTED) {
