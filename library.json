@@ -16,13 +16,11 @@
       "maintainer": true
     } 
   ],
-  "dependencies":
-  {
-    "name": "PubSubClient",
-    "authors": "Nick O'Leary",
-    "frameworks": "arduino"
+  "dependencies":{
+	"WebSockets": "2.1.0",
+	"SocketIoClient": "0.2"
   },
-  "version": "1.0.0",
+  "version": "2.0.0",
   "frameworks": "arduino",
-  "platforms": "espressif"
+  "platforms": "espressif8266"
 }

@@ -10,44 +10,36 @@ device and decide what funciton to all is abstracted away entirely by this libra
 @author: Suyash Kumar <suyashkumar2003@gmail.com>
 */
 #include <Arduino.h> 
-#include <wifi_info.h> // comment this out and fill in the below two lines 
+#include <wifi_info.h> // comment this out and fill in the below two lines
 #include <Conduit.h>
 
-#define LED 4
+#define LED D0
 
 // Fill out the below Github peeps:
-//const char* ssid = "mywifi";
+//const char* ssid = "MOTOE0E4";
 //const char* password = "";
 
-Conduit conduit("suyash", "conduit.suyash.io", "a"); // or "suyash", "home.suyash.io"
+Conduit conduit("suyash", "api.conduit.suyash.io", ""); // or "suyash", "conduit.suyash.io"
 int ledStatus = 0;
 
-int ledToggle(){
-  digitalWrite(LED, (ledStatus) ? LOW : HIGH);
+int ledToggle(RequestParams *rq){
+  digitalWrite(LED, (ledStatus) ? HIGH : LOW); // LED is on when LOW
   ledStatus = (ledStatus) ? 0 : 1;
   Serial.println("Toggled");
-  conduit.publishMessage((ledStatus) ? "LED ON" : "LED OFF");
+    Serial.println(rq->request_uuid);
+  conduit.sendResponse(rq, (ledStatus) ? "ON":"OFF");
 }
 
-int publishMessage(){
-    conduit.publishMessage("hey there");
-}
-
-int publishSomeData(){
-	conduit.publishData("10", "testing");
-	conduit.publishMessage("Done");
-}
 
 void setup(void){
   Serial.begin(115200); // Start serial
+  Serial.print("START");
   pinMode(LED, OUTPUT); // Set LED pin to output
+  digitalWrite(LED, HIGH);
 
   conduit.startWIFI(ssid, password); // Config/start wifi
-
-  // HomeAuto bindings
+  conduit.init();
   conduit.addHandler("ledToggle", &ledToggle);
-  conduit.addHandler("hello", &publishMessage);
-  conduit.addHandler("publishSomeData", &publishSomeData); 
 
 }
 

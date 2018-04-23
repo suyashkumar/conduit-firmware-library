@@ -11,30 +11,37 @@ device and decide what funciton to all is abstracted away entirely by this libra
 */
 
 #include <Arduino.h>
-#include <PubSubClient.h>
 #include <WiFiClient.h>
-#include <ESP8266WiFi.h> 
+#include <ESP8266WiFi.h>
+#include <ESP8266WiFiMulti.h>
+#include <SocketIoClient.h>
+#include <Hash.h>
+#include <RequestParams.h>
 
-typedef int (*handler)();
+typedef std::function<int (RequestParams* rp)> handler;
 void removeSpace(char* s);
 
 
 class Conduit {
 private:
-  PubSubClient* _client; // The mqtt client
-  const char* _mqtt_server;
-  const char* _name;
-  const char* _prefixed_name;
-  const char* _prefix;
+	SocketIoClient* _client;
+	const char* _conduit_server;
+	const char* _name;
+	const char* _prefixed_name;
+	const char* _firmware_key;
+	std::map<String, handler> _f_map;
+    const char* _sid;
 public:
-  Conduit(const char* name, const char* server, const char* prefix);
-  Conduit& init();
-  void addHandler(const char* name, handler f);
-  void callHandler(const char* name);
-  void handle();
-  void reconnect();
-  void msgCallback(char* topic, byte* payload, unsigned int length);
-  void publishMessage(const char* message);
-  void publishData(const char* message, const char* dataStream);
-  void startWIFI(const char* ssid, const char* password); 
+	Conduit(const char* name, const char* server, const char* firmware_key);
+	Conduit& init();
+    void initConnection();
+	void addHandler(const char* name, handler f);
+    void callHandler(RequestParams *rp);
+    void handle();
+    void reconnect();
+    void msgCallback(char* topic, byte* payload, unsigned int length);
+    void publishMessage(const char* message);
+    void publishData(const char* message, const char* dataStream);
+    void startWIFI(const char* ssid, const char* password);
+	void sendResponse(RequestParams *rp, const char* response);
 };
