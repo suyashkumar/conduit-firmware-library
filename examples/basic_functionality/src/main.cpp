@@ -10,16 +10,19 @@ device and decide what funciton to all is abstracted away entirely by this libra
 @author: Suyash Kumar <suyashkumar2003@gmail.com>
 */
 #include <Arduino.h> 
-#include <wifi_info.h> // comment this out and fill in the below two lines
+//#include <wifi_info.h>
 #include <Conduit.h>
 
 #define LED D0
 
-// Fill out the below Github peeps:
-//const char* ssid = "MOTOE0E4";
-//const char* password = "";
 
-Conduit conduit("suyash", "api.conduit.suyash.io", ""); // or "suyash", "conduit.suyash.io"
+const char* ssid = "MOTOE0E4";
+const char* password = "";
+const char* device_name = "suyash";
+const char* server_url = "api.conduit.suyash.io";
+const char* account_secret = "";
+
+Conduit conduit(device_name, server_url, account_secret);
 int ledStatus = 0;
 
 int ledToggle(RequestParams *rq){
