@@ -16,9 +16,9 @@ device and decide what funciton to all is abstracted away entirely by this libra
 #define LED D0
 
 
-const char* ssid = "MOTOE0E4";
+const char* ssid = "";
 const char* password = "";
-const char* device_name = "suyash";
+const char* device_name = "";
 const char* server_url = "api.conduit.suyash.io";
 const char* account_secret = "";
 
