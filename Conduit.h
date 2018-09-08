@@ -17,6 +17,7 @@ device and decide what funciton to all is abstracted away entirely by this libra
 #include <SocketIoClient.h>
 #include <Hash.h>
 #include <RequestParams.h>
+#define default_fingerprint "62:78:3B:79:74:10:4B:EE:5C:DD:E6:0A:BA:59:4F:DC:FF:00:18:C3"
 
 typedef std::function<int (RequestParams* rp)> handler;
 void removeSpace(char* s);
@@ -31,8 +32,9 @@ private:
 	const char* _firmware_key;
 	std::map<String, handler> _f_map;
     const char* _sid;
-public:
-	Conduit(const char* name, const char* server, const char* firmware_key);
+	const char* _fingerprint;
+public: 
+	Conduit(const char* name, const char* server, const char* firmware_key, const char* fingerprint = default_fingerprint); 
 	Conduit& init();
     void initConnection();
 	void addHandler(const char* name, handler f);
