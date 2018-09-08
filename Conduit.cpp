@@ -20,13 +20,13 @@ char response_with_quotes[30];
 WiFiClient client;
 SocketIoClient webSocket;
 ESP8266WiFiMulti WiFiMulti;
-const char* fingerprint = "BC:E5:91:A5:68:B6:EF:93:A6:82:5A:23:85:45:F8:70:3C:21:F3:AE";
 
-Conduit::Conduit(const char* name, const char* server, const char* firmware_key){
+Conduit::Conduit(const char* name, const char* server, const char* firmware_key, const char* fingerprint) {
     // Set name and server
     this->_name = name;
     this->_conduit_server = server;
     this->_firmware_key = firmware_key;
+    this->_fingerprint = fingerprint;
 
     // Compute _prefixed_name
     strcpy(prefixed_name, "\"");
@@ -76,7 +76,7 @@ Conduit& Conduit::init(){
     this->_client->on("server_directives", onCall);
     this->_client->on("connect", onConnect);
     //this->_client->begin(this->_conduit_server, 8000, "/socket.io/?transport=websocket");
-    this->_client->beginSSL(this->_conduit_server, PORT, "/socket.io/?transport=websocket", fingerprint);
+    this->_client->beginSSL(this->_conduit_server, PORT, "/socket.io/?transport=websocket", this->_fingerprint);
     for (int i=0; i < 5; i++) {
         webSocket.loop();
     }
